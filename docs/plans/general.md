@@ -3,6 +3,17 @@
 Turn a cheap touchy-pad USB display into a pair of cute animated
 "googly" eyes, driven (eventually) by real eye tracking.
 
+> **Status (2026-09-28): implemented.** Stages 0–2 plus the Stage-3
+> enhancements E1 (simulator honours `set_properties`) and E2
+> (`SetPropertiesCmd` *replacing* `set_property`) are all landed and
+> verified: parent-repo `just app-test` (251 passed) / `just app-lint` /
+> `just firmware-build` / `just rust-test` green, googly-vr's own 12-case
+> pytest suite green, and an end-to-end smoke (client batch → sim
+> override engine → re-rendered screen proto) passes. The real-hardware
+> run additionally needs the device **re-flashed** with the new
+> protocol-14 firmware. See `docs/design.md` → "Stage lb14" for the
+> parent-repo side of the change.
+
 ## Goal / vision
 
 The end-state pipeline (once a Steam Frame arrives):
