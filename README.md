@@ -37,6 +37,12 @@ just sim-eyes
 just run
 ```
 
+`just run` doesn't need the pad (or the tracker) to be there first: it listens on
+`udp://127.0.0.1:9000`, waits for eye tracking to arrive, and then picks up a
+touchy-pad — retrying every 5 s while updates keep coming (plug the pad in at any
+moment; exit with ctrl-c). Only OSC from this machine is accepted by default; add
+`-- --host 0.0.0.0` to listen on every interface.
+
 Against the touchy-pad **simulator** instead of hardware:
 
 ```sh
@@ -50,7 +56,7 @@ just run
 | Command | What it does |
 |---|---|
 | `sim-eyes` | Broadcasts fake EyeTrackVR tracking (`--pattern {wander,stare,crazy}`, `--blink-rate`, `--rate`). |
-| `googly-vr` | Builds the eye screen once at startup, then animates pupils/lids via batched `set_properties` overrides (`--period` default 100 ms ≈ the ~10 fps ceiling). |
+| `googly-vr` | Listens for OSC tracking on `127.0.0.1:9000` (loopback only unless `--host` says otherwise), finds the touchy-pad lazily — a connection is only attempted when an update arrives, every 5 s at most — builds the eye screen once, then animates pupils/lids via batched `set_properties` overrides (`--period` default 100 ms ≈ the ~10 fps ceiling). Runs until ctrl-c, so a pad attached later is picked up. |
 
 ## Dev
 
@@ -59,13 +65,16 @@ just test    # pytest: OSC round-trip over loopback UDP, mapping math, coalescin
 just lint    # ruff format + check
 ```
 
-Design + stage plan: [docs/plans/general.md](docs/plans/general.md) —
-research notes: [docs/kh-notes.md](docs/kh-notes.md).
-
 ## Status
 
-Early days (stage 0–2 + the touchy-pad `SetPropertiesCmd` prerequisite are
-implemented; see the plan). The eye screen is `button`-based circles on an
-absolute layout; motion is one `SetPropertiesCmd` batch per frame — no
-screen re-uploads. Eye size/shape-from-pupil-diameter and the real
-EyeTrackVR hookup are future stages.
+you probably don't want this yet.
+
+## AI slop and development
+I'm okay with using AI tools to help make code.  In fact, I used them a fair amount so far on this project (one of my first experiments with not writing all my code 'by hand').  So far it has been pretty fun.
+
+However, in some of my other open-source projects, I've seen the current hell PR management is becoming.  So I'd **love** any code contributions y'all want to make (and I promise to be kind) but:
+
+* Please only send in PRs **you** are willing to sign off as 'nicely written' (using your experience as a software engineer).  If your little AI buddy made something a bit ugly, please iterate with it first to make it not ugly.
+* Send in PRs that are fairly 'atomic' (touch just the code they need to touch for one nicely defined feature or bug-fix)
+* Only send in tested code you've run on real hardware (not just the simulator)
+

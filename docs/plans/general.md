@@ -13,6 +13,10 @@ Turn a cheap touchy-pad USB display into a pair of cute animated
 > run additionally needs the device **re-flashed** with the new
 > protocol-14 firmware. See `docs/design.md` → "Stage lb14" for the
 > parent-repo side of the change.
+>
+> **Next:** Stage 5 → `docs/plans/stage5.md` (loopback-only OSC by default,
+> auto-reconnect / "looking for touchy-pad" retry loop, and a parent-repo
+> firmware tweak so host property writes reset the display auto-off timer).
 
 ## Goal / vision
 
@@ -174,10 +178,15 @@ googly-vr = "googly_vr.cli:main"
     (at ~10 fps every round-trip is worth skipping).
 * `cli.py`: `touchy_open()` (honors `TOUCHY_SIM_URL` for sim use),
   build + load the eye screen, then the `python-osc` UDP dispatch
-  server on `0.0.0.0:9000` (so real EyeTrackVR later is drop-in) →
-  `apply_eye_state`. `--period` flag for the coalescing / target
-  frame time (default 100 ms — the ~10 fps ceiling; it also absorbs
-  the faster rate real EyeTrackVR will one day send).
+  server on `127.0.0.1:9000` (loopback is where EyeTrackVR runs; a
+  remote tracker is an explicit `--host 0.0.0.0`) → `apply_eye_state`.
+  `--period` flag for the coalescing / target frame time (default
+  100 ms — the ~10 fps ceiling; it also absorbs the faster rate real
+  EyeTrackVR will one day send).
+  *(Stage 5 refined this: the loop parks on an OSC update and only
+  tries to connect to a touchy-pad as a side effect of one — at most
+  every 5 s — so it costs nothing until tracking runs, and it never
+  exits on its own.)*
 * Acceptance: with real hardware attached, `sim-eyes` in one terminal
   and `googly-vr` in another, the eyes follow the sine wander and
   blink. (Against the *simulator* only the static screen shows — see
